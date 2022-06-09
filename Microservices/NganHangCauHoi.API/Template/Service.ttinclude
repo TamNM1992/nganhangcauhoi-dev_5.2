@@ -1,0 +1,163 @@
+﻿using MagicOnion;
+using MagicOnion.Server;
+using <#= CACHING_NAMESPACE #>.Interface;
+using <#= dataContextNameSpace #>;
+using <#= nameSpace #>.Grpc.Interfaces;
+using <#= COMMON_NAMESPACE #>.Extensions;
+using <#= COMMON_NAMESPACE #>.Models.v5;
+using <#= COMMON_NAMESPACE #>.Models; 
+using <#= COMMON_NAMESPACE #>.Models.Workflow;
+using <#= COMMON_NAMESPACE #>.Services;
+using <#= interfaceInstance.Namespace #>;
+using <#= iWrapServiceNameSpace #>;
+using <#= iServiceNameSpace #>;
+using Microsoft.Extensions.DependencyInjection;
+using EFCore.BulkExtensions;
+
+namespace <#= nameSpace #>.Grpc
+{
+<#
+        foreach (var attrib in serviceAttribute)
+        {
+#>
+    [FromTypeFilter(typeof(GrpcResponseCachingFilter), Arguments = new object[] { 120, false })]
+                        <#
+        }
+#>
+    public partial class ServerGrpc<#= className #>Service : ServiceBase<IGrpc<#= className #>ServiceContract>, IGrpc<#= className #>ServiceContract
+    {
+        private readonly I<#= interfaceClassName #> _service;
+        private readonly ICachingHelper _cachingHelper;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IGrpcContextAccessor _grpcContextAccessor;
+
+        public ServerGrpc<#= className #>Service(I<#= interfaceClassName #> service, ICachingHelper cachingHelper, IServiceProvider serviceProvider)
+        {
+            _service = service;
+            _cachingHelper = cachingHelper;
+            _serviceProvider = serviceProvider;
+            _grpcContextAccessor = _serviceProvider.GetRequiredService<IGrpcContextAccessor>();
+            _grpcContextAccessor.GrpcContext = ServiceContext.Current;
+        }
+
+        #region BaseService
+<#
+        foreach (var method in baseServiceMethods)
+        {
+            index++;
+            var (responseType, isDynamicMethod) = GetResponseType(method, className);
+            var methodName = GetMethodName(interfaceInstance, method, index);
+            var (_, _, returnType) = GetReturnType(method, className, false, false, true);
+#>
+        public async <#= $"{returnType} {methodName}({GetInputParam(method, responseType, null, false)})" #>
+        {
+            var result = (await _service.<#= methodName #>(<#= string.Join(", ", method.Parameters.Select(x => x.ParameterName)) #>));
+            var traceService = _serviceProvider.GetRequiredService<ITraceService>();
+            result.TraceId = traceService.GetRequestTraceId();
+<#
+            if (IsDynamicMethod(method.Name))
+            {
+#>
+            Context.ChangeSerializerOptions(MessagePack.Resolvers.ContractlessStandardResolverAllowPrivate.Options);
+<#
+            }
+#>
+            return result.Cast();
+        }
+
+<#
+        }
+#>
+        #endregion
+
+        #region Service
+<#
+        foreach (var method in serviceMethods)
+        {
+            index++;
+            var (responseType, isDynamicMethod) = GetResponseType(method, className);
+            var methodName = GetMethodName(interfaceInstance, method, index);
+            var (returnIMethodResult, returnMethodResult, returnType) = GetReturnType(method, className, false, false);
+#>
+        <#
+            foreach (var attrib in method.AttributeDatas.Where(x => x.AttributeClass != null && x.AttributeClass.Name.Contains("FromTypeFilterAttribute")))
+            {
+#>
+        [FromTypeFilter(typeof(GrpcResponseCachingFilter), Arguments = new object[] { 120, false })]  
+            <#
+            }
+#>
+        public async <#= $"{returnType} {methodName}({GetInputParam(method, responseType, null, false)})" #>
+        {
+            var result = <#=!returnMethodResult ? $"MethodResult<{method.ReturnType}>.ResultWithData" : ""#>(<#= $"{(IsAsync(method) ? "await " : "")}" #>_service.<#= methodName #>(<#= string.Join(", ", method.Parameters.Select(x => x.ParameterName)) #>));
+            var traceService = _serviceProvider.GetRequiredService<ITraceService>();
+            result.TraceId = traceService.GetRequestTraceId();
+<#
+            if (IsDynamicMethod(method.Name))
+            {
+#>
+            Context.ChangeSerializerOptions(MessagePack.Resolvers.ContractlessStandardResolverAllowPrivate.Options);
+<#
+            }
+#>
+            return result<#=returnIMethodResult ? ".Cast()" : "" #>;
+        }
+
+<#
+        }
+#>
+        #endregion
+
+        #region WrapService
+<#
+        foreach (var method in wrapServiceMethods)
+        {
+            index++;
+            var (responseType, isDynamicMethod) = GetResponseType(method, className);
+            var methodName = GetMethodName(interfaceInstance, method, index);
+            var (returnIMethodResult, returnMethodResult, returnType) = GetReturnType(method, className, false, false);
+#>
+<#
+            foreach (var attrib in method.AttributeDatas.Where(x => x.AttributeClass != null && x.AttributeClass.Name.Contains("FromTypeFilterAttribute")))
+            {
+#>
+        [FromTypeFilter(typeof(GrpcResponseCachingFilter), Arguments = new object[] { 120, false })]  
+            <#
+            }
+#>
+        public async <#= $"{returnType} {methodName}({GetInputParam(method, responseType, null, false)})" #>
+        {
+            var result = <#=!returnMethodResult ? $"MethodResult<{method.ReturnType}>.ResultWithData" : ""#>(<#= $"{(IsAsync(method) ? "await " : "")}" #>_service.<#= GetMethodName(interfaceInstance, method, index) #>(<#= string.Join(", ", method.Parameters.Select(x => x.ParameterName)) #>));
+            var traceService = _serviceProvider.GetRequiredService<ITraceService>();
+            result.TraceId = traceService.GetRequestTraceId();
+<#
+            if (IsDynamicMethod(method.Name))
+            {
+#>
+            Context.ChangeSerializerOptions(MessagePack.Resolvers.ContractlessStandardResolverAllowPrivate.Options);
+<#
+            }
+#>
+            return result<#=returnIMethodResult ? ".Cast()" : "" #>;
+        }
+<#
+        }
+#> 
+        #endregion
+    }
+}
+<#
+        this.GenerationEnvironment.Replace("global::", "");
+        var namespaces = GetListNamespace(this.GenerationEnvironment.ToString(), nameSpace);
+        namespaces.ForEach(x => { this.GenerationEnvironment.Insert(0, $"using {x};\n"); });
+        this.GenerationEnvironment.Insert(0,
+            @"// Waring: Do not modify this file
+// Version: 4.0
+// Author: ThuyL, PhucND" + "\n");
+      
+        // var returnObjectTemp = Regex.Matches(this.GenerationEnvironment.ToString(), @"public async(?:.*?)<([a-zA-Z0-9]*?)>").Cast<Match>().Select(x=>x.Groups[1].Value).ToList();
+        // returnObjects.AddRange(returnObjectTemp);
+
+        SaveServiceOutput(Path.Combine("Generated", "Grpc", $"ServerGrpc{className}Service.cs"));
+        this.GenerationEnvironment.Clear();
+#>

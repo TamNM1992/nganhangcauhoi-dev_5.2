@@ -1,0 +1,3 @@
+﻿// Waring: Do not modify this file
+// Version: 4.0
+// Author: ThuyL, PhucND

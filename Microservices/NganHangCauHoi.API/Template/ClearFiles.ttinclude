@@ -1,0 +1,17 @@
+﻿<#
+    var currentDirectory = string.Join("\\", Host.TemplateFile.Split('\\').Reverse().Skip(2).Reverse().ToArray());
+    var isCore = File.Exists(Path.Combine(currentDirectory, "..", "..", "..", "..", "core"));
+
+    var serverGenerated = Path.Combine(currentDirectory, "Generated", "Grpc");
+    if (Directory.Exists(serverGenerated))
+    {
+        ClearFolder(serverGenerated);
+    }
+
+    var serviceName = currentDirectory.Split('\\').LastOrDefault()?.Split('.').FirstOrDefault();
+    var clientGenerated = GetRelativePath(currentDirectory, serviceName);
+    if (Directory.Exists(clientGenerated))
+    {
+        ClearFolder(clientGenerated);
+    }
+#>

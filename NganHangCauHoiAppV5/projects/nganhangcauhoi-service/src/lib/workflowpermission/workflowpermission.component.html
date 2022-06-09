@@ -1,0 +1,38 @@
+<crud-list #crudList [menuButtons]="getMenuButtons"
+    [model]="model" [setting]="setting" [dataSource]="model.dataSource"
+    (onReload)="_triggerProcessData($event)" (onAdd)="_add($event)" (onEdit)="_edit($event)" (onView)="_view($event)" 
+    (onDelete)="_delete($event)" (onDeleteMultiple)="_deleteMultiple($event)" (onReloaded)="_handleReloaded($event)"
+    (onCopyLink)="_copyLink($event)" (onCopyLinkMultiple)="_copyLinkMultiple()"
+    >
+    <!-- <ng-template #searchCustom>
+        <div class="container-control no-label p-md-6">
+            <span class="label"></span>
+            <div>
+                <dropdown [control]="searchSchema.level" [dataSource]="sourceDonViHanhChinh"
+                    [(value)]="searchData.level" (onSelect)="onSelect($event)">
+                </dropdown>
+            </div>
+        </div>
+    </ng-template> -->
+    <!-- <ng-template #rowGroup let-expanded="expanded" let-rowData="rowData" let-rowGroupMetadata="rowGroupMetadata"
+        let-classRowGroup="classRowGroup" let-iconToggleRowGroup="iconToggleRowGroup"
+        let-getColSpanGroup="getColSpanGroup">
+        <td [colSpan]="getColSpanGroup()" [class]="classRowGroup">
+            <div class="container-row-group">
+                <ng-container *ngTemplateOutlet="iconToggleRowGroup; context: {rowData: rowData, expanded: expanded}">
+                </ng-container>
+                <div class="content-row-group">
+                    <div>123</div>
+                </div>
+            </div>
+        </td>
+    </ng-template> -->
+    <!-- <ng-template #toolbar>customize toolbar</ng-template> -->
+    <!-- <ng-template #function>customize function button</ng-template> -->
+</crud-list>
+
+<tn-dialog *ngIf="showDetailForm" #dialog [styleClass]="'address-form'" [header]="setting.popupHeader | translate"
+    [popupSize]="setting.popupSize" [maskClass]="setting.maskClass" (onHide)="showDetailForm = false">
+    <workflowpermission-form #formBase [parentModel]="model" [parentContext]="context" [model]="formModel" [parentSetting]="setting"
+        (onSaved)="showDetailForm = false;crudList.reload()" (onCancel)="_handleCancel($event)" ></workflowpermission-form>
+</tn-dialog>

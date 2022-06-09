@@ -1,0 +1,6 @@
+
+
+{
+  "LocalHttpEndpoint": "http://localhost:16019",
+  "LocalGrpcEndpoint": "https://localhost:17019"
+}

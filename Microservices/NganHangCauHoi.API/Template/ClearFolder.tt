@@ -1,0 +1,4 @@
+﻿<#@ assembly name=".\Libs\MagicOnion.GeneratorCore.dll" #>
+<#@ assembly name=".\Libs\Microsoft.CodeAnalysis.dll"#>
+<#@ include file="Common.ttinclude"#>
+<#@ include file="ClearFiles.ttinclude" #>

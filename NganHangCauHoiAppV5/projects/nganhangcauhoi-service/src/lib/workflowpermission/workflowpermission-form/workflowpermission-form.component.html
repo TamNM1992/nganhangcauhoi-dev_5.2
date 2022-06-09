@@ -1,0 +1,9 @@
+<crud-form #crudForm [setting]="setting" [context]="context" [disableCaching]="true" [(data)]="model.data" 
+    (onFormReady)="_handleFormReady($event)">
+</crud-form>
+<ng-template #buttonTemplate>
+    <button *ngIf="!model.data.__disableEdit && !__isFormView" pButton type="button"  icon="pi pi-save" class="p-button-text" [label]="'FORM.SAVE' | translate"
+        (click)="_handleSave($event)"></button>
+    <button pButton preventTab type="button" icon="pi pi-replay" class="p-button-text p-button-secondary"
+        [label]="'FORM.CANCEL' | translate"  (click)="_handleCancel($event)"></button>
+</ng-template>

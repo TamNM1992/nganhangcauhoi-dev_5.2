@@ -1,0 +1,924 @@
+﻿<#@ template hostspecific="true" language="C#" #>
+<#@ output extension=".txt" #>
+<#@ assembly name="System.Core"#>
+<#@ assembly name="NetStandard" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Threading.Tasks"#>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="MagicOnion.Utils" #>
+<#@ import namespace="MagicOnion.CodeAnalysis" #>
+<#@ import namespace="Microsoft.CodeAnalysis" #>
+
+<#+
+    List<MethodDefinition> baseMethods = new()
+    {
+        new MethodDefinition()
+        {
+            Name = "StartWorkflowByTask",
+            ResponseType = "UnaryResult<MethodResult<Guid>>",
+            Parameters = new[]
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "CongViecInBase",
+                    ParameterName = " itemCongViec"
+                }
+            }
+        },
+        new MethodDefinition
+        {
+            Name = "StartWorkflowBase",
+            ResponseType = "UnaryResult<MethodResult<bool>>",
+            Parameters = new[]
+            {
+                new ParameterDefinition
+                {
+                    TypeName = "Guid",
+                    ParameterName = "id",
+                },
+                new ParameterDefinition
+                {
+                    TypeName = "string",
+                    ParameterName = "workflowCode",
+                }
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "GetDataDynamic",
+            ResponseType = "UnaryResult<MethodResult<List<object>>>",
+            Parameters = new[]
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "GridInfo",
+                    ParameterName = "gridInfo"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "GetAllDynamicByFilter",
+            ResponseType = "UnaryResult<MethodResult<List<object>>>",
+            Parameters = new ParameterDefinition[]
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "GridInfo",
+                    ParameterName = "gridInfo"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "GetData",
+            ResponseType = "UnaryResult<MethodResult<List<TModel>>>",
+            Parameters = new[]
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "GridInfo",
+                    ParameterName = "gridInfo"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "CheckExistByCodeAsync",
+            ResponseType = "UnaryResult<MethodResult<bool>>",
+            Parameters = new[]
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "string",
+                    ParameterName = "code"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "DeleteAsync",
+            ResponseType = "UnaryResult<MethodResult<bool>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "Guid",
+                    ParameterName = "id"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "DeleteByCodeAsync",
+            ResponseType = "UnaryResult<MethodResult<bool>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "string",
+                    ParameterName = "code"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "DeleteManyByCodesAsync",
+            ResponseType = "UnaryResult<MethodResult<bool>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "string[]",
+                    ParameterName = "codes"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "DeleteManyByIdsAsync",
+            ResponseType = "UnaryResult<MethodResult<bool>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "Guid[]",
+                    ParameterName = "ids"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "GetAllAsync",
+            ResponseType = "UnaryResult<MethodResult<IEnumerable<TModel>>>",
+            Parameters = new []
+            {
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "GetByCodeAsync",
+            ResponseType = "UnaryResult<MethodResult<TModel>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "string",
+                    ParameterName = "code"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "GetByIdAsync",
+            ResponseType = "UnaryResult<MethodResult<TModel>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "Guid",
+                    ParameterName = "id"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "InsertAsync",
+            ResponseType = "UnaryResult<MethodResult<Guid>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "TModel",
+                    ParameterName = "model"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "InsertFromExternalAsync",
+            ResponseType = "UnaryResult<MethodResult<Guid>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "TModel",
+                    ParameterName = "model"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "GetByCodesAsync",
+            ResponseType = "UnaryResult<MethodResult<IEnumerable<TModel>>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "string[]",
+                    ParameterName = "codes"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "GetByIdsAsync",
+            ResponseType = "UnaryResult<MethodResult<IEnumerable<TModel>>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "Guid[]",
+                    ParameterName = "ids"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "InsertBulkAsync",
+            ResponseType = "UnaryResult<MethodResult<bool>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "IList<TModel>",
+                    ParameterName = "models"
+                },
+                new ParameterDefinition()
+                {
+                    TypeName = "Action<BulkConfig>",
+                    ParameterName = "action",
+                    DefaultValue = "null",
+                    HasDefaultValue = true
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "UpdateAsync",
+            ResponseType = "UnaryResult<MethodResult<bool>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "TModel",
+                    ParameterName = "model"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "UpdateBulkAsync",
+            ResponseType = "UnaryResult<MethodResult<bool>>",
+            Parameters = new[]
+            {
+                new ParameterDefinition
+                {
+                    TypeName = "IList<TModel>",
+                    ParameterName = "models"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "CheckExist",
+            ResponseType = "UnaryResult<MethodResult<bool>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "List<Filter>",
+                    ParameterName = "filters"
+                },
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "GetEntityMetadatas",
+            ResponseType = "UnaryResult<MethodResult<List<EntityMetadata>>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                }
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "SaveEntityMetadata",
+            ResponseType = "UnaryResult<MethodResult<bool>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "List<EntityMetadata>",
+                    ParameterName = "entityMetadatas"
+                }
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "CheckIsBuildIn",
+            ResponseType = "UnaryResult<MethodResult<bool>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "TModel",
+                    ParameterName = "model"
+                }
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "GetCacheInfo",
+            ResponseType = "UnaryResult<MethodResult<string>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "string",
+                    ParameterName = "key"
+                }
+            }
+        },
+        new MethodDefinition()
+        {
+            Name = "GetByFilter",
+            ResponseType = "UnaryResult<MethodResult<TModel>>",
+            Parameters = new []
+            {
+                new ParameterDefinition()
+                {
+                    TypeName = "GridInfo",
+                    ParameterName = "gridInfo"
+                },
+            }
+        },
+    };
+
+    List<string> returnObjects = new();
+    string mainNameSpace = string.Empty;
+    string sdkFolder = string.Empty;
+    string currentPath = string.Empty;
+    bool isV5 = false;
+    bool isCore = true;
+
+    public List<AttributeData> GetServiceAttribute(InterfaceDefinition service, InterfaceDefinition wrapService)
+    {
+        var serviceAttribute = service != null
+                                   ? service.AttributeDatas.Where(x => x.AttributeClass != null && x.AttributeClass.Name.Contains("FromTypeFilterAttribute")).ToList()
+                                   : new List<AttributeData>();
+        var wrapServiceAttributes = wrapService != null
+                                        ? wrapService.AttributeDatas.Where(x => x.AttributeClass != null && x.AttributeClass.Name.Contains("FromTypeFilterAttribute")).ToList()
+                                        : new List<AttributeData>();
+        serviceAttribute.AddRange(wrapServiceAttributes);
+        return serviceAttribute;
+    }
+
+    public string GetNameSpace(InterfaceDefinition interfaceInstance)
+    {
+        var nameSpace = interfaceInstance is null
+                            ? string.Empty
+                            : interfaceInstance.Namespace.Substring(0, interfaceInstance.Namespace.IndexOf('.'));
+
+        return nameSpace;
+    }
+
+    public string GetClassName(bool isDerivedFromBaseService, InterfaceDefinition wrapService, InterfaceDefinition service)
+    {
+        var interfaceClassName = wrapService?.Name ?? service?.Name ?? string.Empty;
+        return interfaceClassName;
+    }
+
+    public (List<MethodDefinition> serviceMethods, List<MethodDefinition> wrapServiceMethods, InterfaceDefinition service, InterfaceDefinition wrapService)
+        GetService_WrapServiceMethods(string className, Dictionary<string, InterfaceDefinition> dicService, Dictionary<string, InterfaceDefinition> dicWrapService)
+    {
+        var wrapServiceMethods = new List<MethodDefinition>();
+        if (dicWrapService.TryGetValue(className, out var wrapService))
+            wrapServiceMethods.AddRange(wrapService.Methods);
+        var serviceMethods = new List<MethodDefinition>();
+        if (dicService.TryGetValue(className, out var service))
+            serviceMethods.AddRange(service.Methods);
+
+        if (wrapServiceMethods.Count > 0 && serviceMethods.Count > 0)
+        {
+            var tempServiceMethodsLst = new List<MethodDefinition>();
+            foreach (var method in serviceMethods)
+            {
+                if (!wrapServiceMethods.All(wrapMethod =>
+                         wrapMethod.Name == method.Name
+                         && wrapMethod.ReturnType == method.ReturnType
+                         && wrapMethod.Parameters.Length == method.Parameters.Length))
+                {
+                    tempServiceMethodsLst.Add(method);
+                }
+            }
+            serviceMethods = tempServiceMethodsLst;
+        }
+        return (serviceMethods, wrapServiceMethods, service, wrapService);
+    }
+
+    public List<MethodDefinition> GetBaseMethods(List<MethodDefinition> serviceMethods,
+        List<MethodDefinition> wrapServiceMethods)
+    {
+        var methodsInBase = new List<MethodDefinition>();
+        var serviceMethodsExists = serviceMethods != null && serviceMethods.Count > 0;
+        var wrapServiceMethodsExists = wrapServiceMethods != null && wrapServiceMethods.Count > 0;
+        var allDerivedServiceMethods = new List<MethodDefinition>();
+        if (serviceMethodsExists)
+            allDerivedServiceMethods.AddRange(serviceMethods);
+        if (wrapServiceMethodsExists)
+            allDerivedServiceMethods.AddRange(wrapServiceMethods);
+
+        foreach (var method in baseMethods)
+        {
+            if (allDerivedServiceMethods.All(x => x.Name != method.Name))
+            {
+                methodsInBase.Add(method);
+            }
+        }
+        return methodsInBase;
+    }
+
+    public (string, string, List<string>) GetModelFolderPaths()
+    {
+        var modelFolder =
+            !isCore
+                ? Path.Combine(currentPath, "..", $"{mainNameSpace}.DataContext", "Generated")
+                : Path.Combine(currentPath, "..", $"{mainNameSpace}.Service", $"DataContext", "Generated");
+        string partialModelFolder =
+            !isCore
+                ? Path.Combine(currentPath, "..", $"{mainNameSpace}.DataContext")
+                : Path.Combine(currentPath, "..", $"{mainNameSpace}.Service", $"DataContext");
+        var customFolderPath =
+            !isCore
+                ? Path.Combine(currentPath, "..", $"{mainNameSpace}.DataContext", "CustomModels")
+                : Path.Combine(currentPath, "..", $"{mainNameSpace}.Service", "DataContext", "CustomModels");
+        var customModelFolders = new List<string>() { customFolderPath };
+
+        return (modelFolder, partialModelFolder, customModelFolders);
+    }
+
+    public MethodCollector GetMethodCollector(string currentPath)
+    {
+        string serviceReferentPath = GetServicePath(currentPath);
+        MethodCollector collector = MethodCollectorExtensions.SetupMethodCollector(serviceReferentPath);
+        collector.IsCore = true;
+        collector.CurrentNameSpace = currentPath.Split('\\').LastOrDefault()?.Split('.').FirstOrDefault();
+        return collector;
+    }
+
+    public InterfaceDefinition[] CollectInterface(MethodCollector collector, bool genAll)
+    {
+        if (string.IsNullOrEmpty(collector.CurrentNameSpace))
+        {
+            Console.WriteLine("Không tìm thấy current namespace");
+        }
+        var interfaces = genAll ? collector.CollectAllService() : collector.CollectService();
+        if (interfaces.Length == 0)
+        {
+            Console.WriteLine("Không tìm thấy service nào, có thể bạn chưa đánh Attribute [GenGrpc] vào đầu Service/WrapService hoặc đầu function muốn Gen Grpc");
+        }
+        return interfaces;
+    }
+
+
+    public (Dictionary<string, int> dicService, Dictionary<string, InterfaceDefinition> dicWrapService, Dictionary<string, InterfaceDefinition> dicServiceName)
+        GetWrapAndServiceMethods(InterfaceDefinition[] interfaces)
+    {
+        var dicService = new Dictionary<string, InterfaceDefinition>();
+        var dicWrapService = new Dictionary<string, InterfaceDefinition>();
+        var dicServiceName = new Dictionary<string, int>();
+
+        foreach (var service in interfaces)
+        {
+            if (!service.Name.EndsWith("WrapService"))
+            {
+                var className = Regex.Match(service.Name, "(.*?)Service$").Groups[1].Value;
+                dicService.Add(className, service);
+                if (!dicServiceName.TryGetValue(className, out _))
+                    dicServiceName.Add(className, 1);
+            }
+            else if (service.Name.EndsWith("WrapService"))
+            {
+                var className = Regex.Match(service.Name, "(.*?)WrapService$").Groups[1].Value;
+                dicWrapService.Add(className, service);
+                if (!dicServiceName.TryGetValue(className, out _))
+                    dicServiceName.Add(className, 1);
+            }
+        }
+
+        return (dicServiceName, dicWrapService, dicService);
+    }
+
+    public void SwitchAppContext()
+    {
+        var type = Type.GetType("System.AppContext");
+        if (type != null)
+        {
+            AppContext.SetSwitch("Switch.System.IO.UseLegacyPathHandling", false);
+
+            AppContext.SetSwitch("Switch.System.IO.BlockLongPaths", false);
+
+            var switchType = Type.GetType("System.AppContextSwitches");
+
+            if (switchType != null)
+
+            {
+                // We also have to reach into System.AppContextSwitches and manually update the cached private versions of these properties (don't ask me why):
+
+                var legacyField = switchType.GetField("_useLegacyPathHandling", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+
+                legacyField?.SetValue(null, (Int32)(-1)); // <- caching uses 0 to indicate no value, -1 for false, 1 for true.
+
+                var blockingField = switchType.GetField("_blockLongPaths", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+
+                blockingField?.SetValue(null, (Int32)(-1)); // <- caching uses 0 to indicate no value, -1 for false, 1 for true.
+            }
+        }
+    }
+
+    public void ClearFolder(string path)
+    {
+        var files = Directory.GetFiles(path);
+        var folders = Directory.GetDirectories(path);
+        foreach (var file in files)
+        {
+            File.Delete(file);
+        }
+
+        foreach (var folder in folders)
+        {
+            ClearFolder(folder);
+            Directory.Delete(folder);
+        }
+    }
+
+    public string GetRelativePath(string currentDirectory, string serviceName)
+    {
+        var op = "";
+        var checkIsCoreFilePath = Path.Combine(currentDirectory, "..", "..", "..", "..", "core");
+        if (File.Exists(checkIsCoreFilePath))
+        {
+            if (isV5)
+                op = Path.Combine(currentDirectory, "..", "..", "..", "Clients", "Client.All", $"{serviceName}.Client");
+            else
+                op = Path.Combine(currentDirectory, "..", "..", "..", "Shared", "Shared.All", "Clients", $"{serviceName}");
+        }
+        else
+        {
+            op = Path.Combine(currentDirectory, "..", $"{serviceName}.Client");
+        }
+        return op;
+    }
+
+
+    private string GetServicePath(string currentPath)
+    {
+        var csProjectFile = Directory.GetFiles(currentPath, "*.csproj", SearchOption.TopDirectoryOnly).First();
+        var csProjectContent = File.ReadAllText(csProjectFile);
+        var serviceReferentPath = Regex.Match(csProjectContent, "<ProjectReference Include=\"(.*?Service\\.csproj)\"").Groups[1].Value;
+
+        return Path.Combine(currentPath, serviceReferentPath);
+    }
+
+    // private void CopyCustomModel(string sourceFile, string mainNameSpace, string targetPath)
+    // {
+    //     if (!Directory.Exists(targetPath))
+    //     {
+    //         Directory.CreateDirectory(targetPath);
+    //     }
+    // }
+
+
+    public void CopyCustomModel(string sourceDirectory, string targetDirectory)
+    {
+        var diSource = new DirectoryInfo(sourceDirectory);
+        var diTarget = new DirectoryInfo(targetDirectory);
+
+
+        CopyAll(diSource, diTarget);
+
+        var files = Directory.GetFiles(targetDirectory, $"*.cs", SearchOption.AllDirectories);
+        foreach (var file in files)
+        {
+            var content = File.ReadAllText(file);
+
+            if (content.Contains("[IgnoreGrpcGenerate]"))
+            {
+                File.Delete(file);
+                continue;
+            }
+
+            // var dataContextNamespace = isV5 ? $"{mainNameSpace}.DataContext" : $"{mainNameSpace}.Service.DataContext";
+            var dataContextNamespace = $"{mainNameSpace}.DataContext";
+            var clientNameSpace = isV5 ? $"Client.All" : "Shared.All.Clients";
+            content = $"using {mainNameSpace}.Client.Grpc.Models;\n" + content;
+            content = content.Replace($"using {dataContextNamespace};", "");
+            content = content.Replace($"using {dataContextNamespace}.", $"using {mainNameSpace}.Client.Grpc.");
+            content = Regex.Replace(content, "[ \t]*namespace\\s*(.*?)\\s+", $"namespace {mainNameSpace}.Client.Grpc.CustomModels\n");
+
+            File.WriteAllText(file, content);
+        }
+    }
+
+    public void CopyAll(DirectoryInfo source, DirectoryInfo target)
+    {
+        Directory.CreateDirectory(target.FullName);
+
+        // Copy each file into the new directory.
+        foreach (FileInfo fi in source.GetFiles())
+        {
+            // await _debugLogService.LogError(@"Copying {0}\{1}", target.FullName, fi.Name);
+            fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+        }
+
+        // Copy each subdirectory using recursion.
+        foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
+        {
+            DirectoryInfo nextTargetSubDir =
+                target.CreateSubdirectory(diSourceSubDir.Name);
+            CopyAll(diSourceSubDir, nextTargetSubDir);
+        }
+    }
+
+
+    private void CopyModel(string sourceFile, string mainNameSpace, string targetPath)
+    {
+        if (!Directory.Exists(targetPath))
+        {
+            Directory.CreateDirectory(targetPath);
+        }
+
+        var content = File.ReadAllText(sourceFile);
+
+        if (content.Contains("[IgnoreGrpcGenerate]"))
+        {
+            return;
+        }
+
+        var dataContextNamespace = $"{mainNameSpace}.DataContext";
+        var clientNameSpace = isV5 ? $"Client.All" : "Shared.All.Clients";
+        content = Regex.Replace(content, "[ \t]*namespace\\s*(.*?)\\s+", $"namespace {mainNameSpace}.Client.Grpc.Models\n");
+        content = content.Replace($"using {dataContextNamespace}", $"using {mainNameSpace}.Client.Grpc");
+
+        File.WriteAllText($"{targetPath}/{Path.GetFileName(sourceFile)}", content);
+    }
+
+
+    private void SaveServiceOutput(string outputFileName)
+    {
+        var templateDirectory = string.Join("\\", Host.TemplateFile.Split('\\').Reverse().Skip(2).Reverse().ToArray());
+        string outputFilePath = Path.Combine(templateDirectory, outputFileName);
+        string outputPath = Path.GetDirectoryName(outputFilePath);
+
+        if (!Directory.Exists(outputPath))
+        {
+            Directory.CreateDirectory(outputPath);
+        }
+
+        File.WriteAllText(outputFilePath, this.GenerationEnvironment.ToString());
+        this.GenerationEnvironment.Remove(0, this.GenerationEnvironment.Length);
+    }
+
+    private void SaveSdkOutput(string outputFileName)
+    {
+        var templateDirectory = string.Join("\\", Host.TemplateFile.Split('\\').Reverse().Skip(2).Reverse().ToArray());
+        string outputFilePath = Path.Combine(templateDirectory, outputFileName);
+        string outputPath = Path.GetDirectoryName(outputFilePath);
+
+        if (!Directory.Exists(outputPath))
+        {
+            Directory.CreateDirectory(outputPath);
+        }
+
+        File.WriteAllText(outputFilePath, this.GenerationEnvironment.ToString());
+        this.GenerationEnvironment.Remove(0, this.GenerationEnvironment.Length);
+    }
+
+    private string GetMethodName(InterfaceDefinition interfaceInstance, MethodDefinition method, int index)
+    {
+        var result = $"{(interfaceInstance.Methods.Count(k => k.Name == method.Name) > 1 ? $"{method.Name}{index}" : method.Name)}";
+        if (method.Name == "DoBusinessInsertAsync")
+            result = "InsertAsync";
+        return result;
+    }
+
+    private string GetInputParam(MethodDefinition method, string responseType, string nameSpace = null, bool isCore = true)
+    {
+        foreach (var parametter in method.Parameters)
+        {
+            if (!string.IsNullOrEmpty(parametter.TypeName)
+                && !IsSystemType(parametter.TypeName)
+                )
+            {
+                returnObjects.Add(parametter.TypeName);
+            }
+        }
+
+        var result = string.Join(", ", method.Parameters.Select(x => x.ToString())).Replace("global::", "");
+
+        if (nameSpace != null) result = result.Replace($"{nameSpace}.DataContext.", "");
+        if (isCore) result = result.Replace("Shared.All.", "");
+        return result.Replace("<T>", $"{responseType}")
+                     .Replace("TModel", $"{responseType}");
+    }
+
+    private (bool returnIMethodResult, bool returnMethodResult, string returnType) GetReturnType(MethodDefinition method, string className, bool isClient = false, bool isCore = true,
+        bool isBaseMethod = false)
+    {
+        if (!isBaseMethod)
+        {
+            var entityName = Regex.Match(method.ReturnType, @"<([a-zA-Z0-9_\-\.]*?)>").Groups[1].Value;
+            if (!string.IsNullOrEmpty(entityName)
+                && !IsSystemType(entityName)
+                )
+            {
+                returnObjects.Add(entityName);
+            }
+
+            return GetReturnTypeHelper(method, method.ReturnType, className, isBaseMethod, isClient, isCore);
+        }
+        return GetReturnTypeHelper(method, method.ResponseType, className, isBaseMethod, isClient, isCore);
+    }
+
+    private (bool returnIMethodResult, bool returnMethodResult, string returnType) GetReturnTypeHelper(MethodDefinition method, string returnType, string className, bool isBaseMethod, bool isClient,
+        bool isCore)
+    {
+        var (responseType, isDynamicMethod) = isClient ? GetResponseTypeClient(method, className) : GetResponseType(method, className);
+
+        var returnMethodResult = returnType.Contains("MethodResult");
+        var returnIMethodResult = returnType.Contains("IMethodResult");
+        if (!returnMethodResult && !returnIMethodResult)
+            returnType = $"MethodResult<{returnType}>";
+        if (method.Name.Contains("DoBusinessInsertAsync"))
+            return (returnIMethodResult, returnMethodResult, "UnaryResult<MethodResult<Guid>>");
+
+        if (returnType == "void")
+        {
+            return (returnIMethodResult, returnMethodResult, "UnaryResult");
+        }
+
+        if (returnType.StartsWith("global::System.Threading.Tasks.Task"))
+        {
+            return
+                (
+                    returnIMethodResult, returnMethodResult,
+                        GetReturnIfClient(returnType.Replace("global::System.Threading.Tasks.Task", "UnaryResult").Replace("IMethodResult", "MethodResult"), responseType, isDynamicMethod, isClient,
+                            isCore));
+        }
+
+        if (returnType.StartsWith("System.Threading.Tasks.Task"))
+        {
+            return
+                (
+                    returnIMethodResult, returnMethodResult,
+                        GetReturnIfClient(returnType.Replace("System.Threading.Tasks.Task", "UnaryResult").Replace("IMethodResult", "MethodResult"), responseType, isDynamicMethod, isClient, isCore));
+        }
+
+        if (returnType.StartsWith("Task"))
+        {
+            return
+                (
+                    returnIMethodResult, returnMethodResult,
+                        GetReturnIfClient(returnType.Replace("Task", "UnaryResult").Replace("IMethodResult", "MethodResult"), responseType, isDynamicMethod, isClient, isCore));
+        }
+
+        var result = !isBaseMethod ? $"UnaryResult<{returnType}>" : returnType;
+        return (returnIMethodResult, returnMethodResult, GetReturnIfClient($"{result}".Replace("IMethodResult", "MethodResult"), responseType, isDynamicMethod, isClient, isCore));
+    }
+
+    private string GetReturnIfClient(string result, string responseType, bool isDynamicMethod, bool isClient, bool isCore = true)
+    {
+        if (isClient && isCore)
+        {
+            result = result.Replace("Shared.All.", "");
+        }
+        if (isDynamicMethod)
+        {
+            result = result.Replace("object", responseType);
+        }
+        return result.Replace("global::", "")
+                     .Replace("<T>", $"<{responseType}>")
+                     .Replace("TModel", $"{responseType}");
+    }
+
+    public bool IsDynamicMethod(string methodName)
+    {
+        methodName = methodName.ToLower();
+        return methodName.Contains("dynamic") || methodName.EndsWith("_d");
+    }
+
+    private bool IsSystemType(string type)
+    {
+        if (type == "object"
+            || type.StartsWith("global::")
+            || type == "int"
+            || type == "int?"
+            || type == "int[]"
+            || type == "datetime"
+            || type == "datetime?"
+            || type == "datetime[]"
+            || type == "Guid"
+            || type == "Guid?"
+            || type == "Guid[]"
+            || type.ToLower() == "string"
+            || type.ToLower() == "string[]"
+            || type == "bool"
+            || type == "bool?"
+            || type == "bool[]"
+            || type == "short"
+            || type == "short[]"
+            || type == "float"
+            || type == "float[]"
+            || type == "double"
+            || type == "double[]"
+            || type == "decimal"
+            || type == "decimal[]"
+            || type == "MethodResult"
+            || type == "IMethodResult"
+            )
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private bool IsAsync(MethodDefinition method)
+    {
+        if (method.ReturnType.Contains("Task") || method.Name.Contains("Async"))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public List<string> GetListNamespace(string generationEnvironment, string nameSpace, bool isClient = false)
+    {
+        var sharedNameSpace = isV5 ? @"Common\.lib" : "Shared.All*";
+        var namespaces = Regex.Matches(
+                                       generationEnvironment,
+            $@"(System|{sharedNameSpace})[a-zA-z0-9\.]*[\.]"
+            ).Cast<Group>()
+                              .Select(x => x.Value.Remove(x.Value.Length - 1))
+                              .Distinct()
+                              .ToList();
+
+        var commonNamespace = isV5 ? "Common.Lib" : "Shared.All.Common";
+        var dataContextNamespace = !isCore
+                                       ? $"{nameSpace}.DataContext"
+                                       : $"{nameSpace}.Service.DataContext";
+        if (!isClient)
+        {
+            AddIfNotExist(namespaces, $"{dataContextNamespace}.CustomModels");
+        }
+        else
+        {
+            // namespaces.Add($"{commonNamespace}.CustomModels");
+            AddIfNotExist(namespaces, $"{commonNamespace}.Models");
+        }
+        AddIfNotExist(namespaces, "System");
+        AddIfNotExist(namespaces, "System.Linq");
+        AddIfNotExist(namespaces, "System.Collections.Generic");
+        AddIfNotExist(namespaces, "Newtonsoft.Json.Linq");
+        AddIfNotExist(namespaces, "MagicOnion.Server");
+        AddIfNotExist(namespaces, $"{commonNamespace}.Models");
+        AddIfNotExist(namespaces, $"{commonNamespace}.Attributes");
+        AddIfNotExist(namespaces, $"{commonNamespace}.GlobalApi.DataContext");
+        return namespaces;
+    }
+
+    public void AddIfNotExist(
+        List<string> namespaces, string nameSpace
+        )
+    {
+        if (!namespaces.Contains(nameSpace))
+        {
+            namespaces.Add(nameSpace);
+        }
+    }
+
+    public (string responseType, bool isDynamicMethod) GetResponseTypeClient(MethodDefinition method, string className)
+    {
+        return GetResponseType(method, className, true);
+    }
+
+    public (string responseType, bool isDynamicMethod) GetResponseType(MethodDefinition method, string className)
+    {
+        return GetResponseType(method, className, false);
+    }
+
+    private (string responseType, bool isDynamicMethod) GetResponseType(MethodDefinition method, string className, bool isClient)
+    {
+        var responseType = className;
+        var isDynamicMethod = IsDynamicMethod(method.Name);
+        if (isDynamicMethod)
+            responseType = !isClient ? "dynamic" : className;
+        return (responseType, isDynamicMethod);
+    }
+#>

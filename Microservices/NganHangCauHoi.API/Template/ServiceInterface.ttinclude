@@ -1,0 +1,54 @@
+﻿using MagicOnion;
+using <#= COMMON_NAMESPACE #>.Extensions;
+using <#= COMMON_NAMESPACE #>.Models.v5;
+using <#= COMMON_NAMESPACE #>.Models; 
+using <#= COMMON_NAMESPACE#>.Models.Workflow;
+using <#= dataContextNameSpace#>;
+using EFCore.BulkExtensions;
+
+namespace <#=nameSpace#>.Grpc.Interfaces
+{
+    public partial interface IGrpc<#= className #>ServiceContract : IService<IGrpc<#= className #>ServiceContract>
+    {
+
+        #region BaseService
+<# foreach (var method in baseServiceMethods) { 
+                  index++;
+            var (responseType, isDynamicMethod) = GetResponseType(method, className);
+            var (_, _, returnType) = GetReturnType(method, className, false, false, true);
+#>
+        <#= $"{returnType} {GetMethodName(interfaceInstance, method, index)}({GetInputParam(method,responseType, null, false)})" #>;
+<#} #>
+        #endregion
+        #region Service
+<# foreach (var method in serviceMethods) { 
+                  index++;
+            var (responseType, isDynamicMethod) = GetResponseType(method, className);
+            var (_, _, returnType) = GetReturnType(method, className, false, false);
+#>
+        <#= $"{returnType} {GetMethodName(interfaceInstance, method, index)}({GetInputParam(method, responseType, null, false)})" #>;
+<#} #>
+        #endregion
+        #region WrapService
+<# foreach (var method in wrapServiceMethods) { 
+                  index++;
+            var (responseType, isDynamicMethod) = GetResponseType(method, className);
+            var (_, _, returnType) = GetReturnType(method, className, false, false);
+#>
+        <#= $"{returnType} {GetMethodName(interfaceInstance, method, index)}({GetInputParam(method, responseType, null, false)})" #>;
+<#} #>
+        #endregion
+    }
+}
+<#
+   namespaces = GetListNamespace(this.GenerationEnvironment.ToString(), nameSpace);
+   namespaces.ForEach(x => { this.GenerationEnvironment.Insert(0, $"using {x};\n"); });
+   this.GenerationEnvironment.Insert(0,
+       @"// Waring: Do not modify this file
+ // Version: 4.0
+ // Author: ThuyL, PhucND" + "\n");
+
+
+   SaveServiceOutput(Path.Combine("Generated", "Grpc", "Interfaces", $"IGrpc{className}Service.cs"));
+   this.GenerationEnvironment.Clear();
+#>

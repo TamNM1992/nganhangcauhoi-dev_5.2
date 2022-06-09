@@ -1,0 +1,16 @@
+﻿<#
+    // features to be included to other t4 files
+    // sdkFolder = @"C:\Users\HiepNgo\Documents\Core\master\Services\Shared\Clients\Chat.Client";
+    
+    // string serviceReferentPath = GetServicePath(currentPath);
+    // MethodCollector collector = new MethodCollector(serviceReferentPath, new List<string>(), null);
+    // var interfaces = collector.CollectTnServiceInterface();
+    //
+    // mainNameSpace = interfaces[0].Namespace.Substring(0, interfaces[0].Namespace.IndexOf('.'));
+    //
+    // var partialModelFolder = Path.Combine(currentPath, "..", $"{mainNameSpace}.DataContext");
+    // modelFolder = Path.Combine(currentPath, "..", $"{mainNameSpace}.DataContext", "Generated");
+    // customModelFolders = new List<string>(){Path.Combine(currentPath, "..", $"{mainNameSpace}.DataContext", "CustomModels")};
+    // sdkFolder = Path.Combine(currentPath, "..", $"{mainNameSpace}.Client");
+   
+#>

@@ -1,0 +1,6 @@
+
+
+
+FROM dockerhub.dttt.vn/aspnetcore-with-grpc:5.2
+COPY ./publish /app
+ENTRYPOINT ["dotnet", "NganHangCauHoi.API.dll"]

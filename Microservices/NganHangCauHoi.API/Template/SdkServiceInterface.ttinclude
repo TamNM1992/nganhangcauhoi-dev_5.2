@@ -1,0 +1,70 @@
+﻿<# // SDK Service Interface  
+#>
+using MagicOnion;
+using <#= nameSpace #>.Client.Grpc.Models;
+using <#= nameSpace #>.Client.Grpc.CustomModels;
+using <#= COMMON_NAMESPACE #>.Extensions;
+using <#= COMMON_NAMESPACE #>.Interfaces.v5;
+using <#= COMMON_NAMESPACE #>.Models.v5;
+using <#= COMMON_NAMESPACE #>.Models; 
+using <#= COMMON_NAMESPACE#>.Models.Workflow;
+using EFCore.BulkExtensions;
+
+namespace <#= nameSpace #>.Client.Grpc.Interfaces
+{
+    public partial interface I<#= className #>ServiceSdk
+    {
+
+        #region BaseService
+<#
+        foreach (var method in baseServiceMethods)
+        {
+            index++;
+            var (responseType, isDynamicMethod) = GetResponseTypeClient(method, className);
+            var (_, _, returnType) = GetReturnType(method, className, true, false, true);
+#>
+        <#= $"{returnType} {GetMethodName(interfaceInstance, method, index)}({GetInputParam(method, responseType, nameSpace, false)})" #>;
+<#
+        }
+#>
+        #endregion
+        #region Service
+<#
+        foreach (var method in serviceMethods)
+        {
+            index++;
+            var (responseType, isDynamicMethod) = GetResponseTypeClient(method, className);
+            var (_, _, returnType) = GetReturnType(method, className, true, false);
+#>
+        <#= $"{returnType} {GetMethodName(interfaceInstance, method, index)}({GetInputParam(method, responseType, nameSpace, false)})" #>;
+<#
+        }
+#>
+        #endregion
+        #region WrapService
+<#
+        foreach (var method in wrapServiceMethods)
+        {
+            index++;
+            var (responseType, isDynamicMethod) = GetResponseTypeClient(method, className);
+            var (_, _, returnType) = GetReturnType(method, className, true, false);
+#>
+        <#= $"{returnType} {GetMethodName(interfaceInstance, method, index)}({GetInputParam(method, responseType, nameSpace, false)})" #>;
+<#
+        }
+#>
+        #endregion
+    }
+}
+<#
+        this.GenerationEnvironment.Replace("global::", "");
+        namespaces = GetListNamespace(this.GenerationEnvironment.ToString(), nameSpace, true);
+        namespaces.ForEach(x => { this.GenerationEnvironment.Insert(0, $"using {x};\n"); });
+        this.GenerationEnvironment.Insert(0,
+            @"// Waring: Do not modify this file
+// Version: 4.0
+// Author: ThuyL, PhucND" + "\n");
+
+        SaveSdkOutput(Path.Combine($"{sdkFolder}", "Generated", "Grpc", "Interfaces", $"I{className}ServiceSdk.cs"));
+        this.GenerationEnvironment.Clear();
+#>

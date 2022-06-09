@@ -1,0 +1,15 @@
+﻿<#
+    // sdkFolder = @"C:\Users\HiepNgo\Documents\Core\master\Services\Shared\Clients\Chat.Client";
+    var collector = GetMethodCollector(currentPath);
+    var interfaces = CollectInterface(collector, genAll);
+    var (dicServiceName, dicWrapService, dicService) = GetWrapAndServiceMethods(interfaces);
+
+    mainNameSpace = collector.CurrentNameSpace;
+    var iWrapServiceNameSpace = $"{collector.CurrentNameSpace}.Service.WrapServices.Interfaces";
+    var iServiceNameSpace = $"{collector.CurrentNameSpace}.Service.Interfaces";
+    var dataContextNameSpace = !isCore 
+            ? $"{collector.CurrentNameSpace}.DataContext"
+            : $"{collector.CurrentNameSpace}.Service.DataContext";
+    var (modelFolder, partialModelFolder, customModelFolders) = GetModelFolderPaths();
+    sdkFolder = GetRelativePath(currentPath, mainNameSpace);
+#>

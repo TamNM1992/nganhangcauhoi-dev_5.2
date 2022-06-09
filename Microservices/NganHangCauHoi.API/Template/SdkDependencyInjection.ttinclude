@@ -1,0 +1,50 @@
+﻿<#
+    this.GenerationEnvironment.Clear();
+#>
+using <#= currentNameSpace #>.Client.Grpc;
+using <#= currentNameSpace #>.Client.Grpc.Interfaces;
+using <#= COMMON_NAMESPACE #>.Models.v5;
+using <#= COMMON_NAMESPACE #>.Models; 
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using EFCore.BulkExtensions;
+
+namespace <#= mainNameSpace #>.Client.Generated.Configs
+{
+    public class DependencyInjectionGrpc
+    {
+        public static void AddGrpcService(IServiceCollection services, IConfiguration configuration)
+        {
+<#
+    dependencyClass.ForEach(x =>
+    {
+#>
+            services.AddScoped<I<#= x #>ServiceSdk, Client<#= x #>ServiceSdk>();
+<#
+    });
+#>
+        }
+    }
+}
+<#
+    SaveSdkOutput(Path.Combine($"{sdkFolder}", "Generated", "Grpc", "Configs", "DependencyInjectionGrpc.cs"));
+    sdkFolder = GetRelativePath(currentPath, currentNameSpace);
+    var extensionFile = Directory.GetFiles(sdkFolder, "*Extensions.cs", SearchOption.TopDirectoryOnly).First();
+
+    var content = File.ReadAllText(extensionFile);
+
+    if (!Regex.IsMatch(content, $"DependencyInjectionGrpc\\.AddGrpcService\\(services, configuration\\);"))
+    {
+        content = Regex.Replace(content, @";(\s)*}", $";\n\t\t\tDependencyInjectionGrpc.AddGrpcService(services, configuration);\n\t\t}}");
+    }
+
+    if (!Regex.IsMatch(content, $"using {currentNameSpace}.Client.Generated.Configs;"))
+    {
+        content = content.Insert(0, $"using {currentNameSpace}.Client.Generated.Configs;\n");
+    }
+this.GenerationEnvironment.Insert(0,
+@"// Waring: Do not modify this file
+// Version: 4.0
+// Author: ThuyL, PhucND" + "\n");
+    File.WriteAllText(extensionFile, content);
+#>

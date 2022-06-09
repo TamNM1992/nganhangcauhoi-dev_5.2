@@ -1,0 +1,24 @@
+﻿<#
+    // features to be included to other t4 files
+    // copy models
+    foreach (string file in Directory.GetFiles(modelFolder, "*.cs", SearchOption.TopDirectoryOnly))
+    {
+        if (!file.EndsWith("DataContext.cs"))
+        {
+            CopyModel(file, mainNameSpace, $"{sdkFolder}\\Generated\\Grpc\\Models");
+        }
+    }
+
+    // copy partial models
+    foreach (string file in Directory.GetFiles(partialModelFolder, "*.cs", SearchOption.TopDirectoryOnly))
+    {
+        if (!file.EndsWith("DataContext.cs"))
+        {
+            CopyModel(file, mainNameSpace, $"{sdkFolder}\\Generated\\Grpc\\PartialModels");
+        }
+    }
+    foreach (var customModelFolder in customModelFolders)
+    {
+        CopyCustomModel(customModelFolder, $"{sdkFolder}\\Generated\\Grpc\\CustomModels");
+    }
+#>

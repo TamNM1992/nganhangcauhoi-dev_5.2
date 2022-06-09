@@ -1,0 +1,29 @@
+﻿<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#
+    //Dependency Injection SDK
+
+            var extensionFile = Directory.GetFiles(sdkFolder, "*Extensions.cs", SearchOption.TopDirectoryOnly).First();
+
+            var content = File.ReadAllText(extensionFile);
+
+            dependencyClass.ForEach(x =>
+            {
+                if (!Regex.IsMatch(content, $"<I{x}ServiceSdk, {x}ServiceSdk>"))
+                {
+                    content = Regex.Replace(content, @";(\s)*}", $";\n\t\t\tservices.AddScoped<I{x}ServiceSdk, {x}ServiceSdk>();\n\t\t}}");
+                }
+            });
+
+            if (!Regex.IsMatch(content, $"using {currentNameSpace}.Client.Grpc.Interface;"))
+            {
+                content = content.Insert(0, $"using {currentNameSpace}.Client.Grpc.Interface;\n");
+            }
+
+            if (!Regex.IsMatch(content, $"using {currentNameSpace}.Client.Grpc;"))
+            {
+                content = content.Insert(0, $"using {currentNameSpace}.Client.Grpc;\n");
+            }
+
+            File.WriteAllText(extensionFile, content);
+#>

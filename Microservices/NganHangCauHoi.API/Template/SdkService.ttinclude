@@ -1,0 +1,181 @@
+﻿<#
+    var classInheritance = new StringBuilder();
+    var contract = $"IGrpc{className}ServiceContract";
+    if (interfaceInstance.DerivedFromBaseService)
+    {
+        classInheritance.Append($"BaseGrpcServiceSdk<{contract}, {className}>, ");
+    }
+    classInheritance.Append($"I{className}ServiceSdk");
+#>
+
+using Microsoft.Extensions.Configuration;
+using <#= nameSpace #>.Client.Constants;
+using <#= nameSpace #>.Client.Grpc.Interfaces;
+using <#= nameSpace #>.Client.Grpc.Models;
+using <#= nameSpace #>.Client.Grpc.CustomModels;
+using <#= COMMON_NAMESPACE #>.Extensions;
+using <#= COMMON_NAMESPACE #>.Models.v5;
+using <#= COMMON_NAMESPACE #>.Models; 
+using <#= COMMON_NAMESPACE #>.Models.Workflow;
+using <#= COMMON_NAMESPACE #>.Interfaces;
+using Polly;
+using MagicOnion;
+using Grpc.Core;
+using Grpc.Net.Client;
+using EFCore.BulkExtensions;
+
+namespace <#= nameSpace #>.Client.Grpc
+{
+<#
+        foreach (var attrib in serviceAttribute)
+        {
+#>
+    [FromTypeFilter(typeof(GrpcResponseCachingFilter), Arguments = new object[] { 120, false })]
+            <#
+        }
+#>
+    public partial class Client<#= className #>ServiceSdk : <#=classInheritance.ToString()#>
+    {
+
+        <#= interfaceInstance.DerivedFromBaseService 
+            ? "" 
+            : $@"
+            private static GrpcChannel _channel;            
+            private static {contract} _serviceContract;
+            private readonly IConfiguration _configuration;
+            private readonly ILogService _logService;
+            private readonly int _retryCount;"
+        #>
+         public Client<#= className #>ServiceSdk(
+                IConfiguration configuration,
+                IServiceProvider serviceProvider<#=interfaceInstance.DerivedFromBaseService ? "" : ",\n     ILogService logService"#>
+                )
+                <#=interfaceInstance.DerivedFromBaseService ? ": base(configuration, serviceProvider, ServiceConstants.SERVICE_NAME)" : ""#>
+        {
+            <#=interfaceInstance.DerivedFromBaseService 
+                ? ""
+                : $@"_logService = logService;
+                    _configuration = configuration;"
+                  + "\n_retryCount = _configuration.ServiceGet(\"MagicOnion:RetryCount\", 3);"
+                  +"\nif (_channel is null && _serviceContract is null)" 
+                  +$"\n(_channel, _serviceContract) = BaseGrpcServiceSdk<{contract}, object>.SetupGrpc(_retryCount, _logService, ServiceConstants.SERVICE_NAME, _configuration, serviceProvider);" 
+            #>
+        }
+
+        #region BaseService
+<#
+        foreach (var method in baseServiceMethods)
+        {
+            index++;
+            var methodName = GetMethodName(interfaceInstance, method, index);
+            var (responseType, isDynamicMethod) = GetResponseTypeClient(method, className);
+            var (_, _, returnType) = GetReturnType(method, className, true, false, true);
+#>
+        public async <#= $"{returnType} {GetMethodName(interfaceInstance, method, index)}({GetInputParam(method,responseType, nameSpace, false)})" #>
+        {
+            var policy = Polly.Policy
+                .Handle<Exception>()
+                .Or<RpcException>()
+                .WaitAndRetryAsync(_retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                (ex, time) =>
+                {
+                    _logService.Error("Exception on grpc call:" + ex.ToString());
+                });
+
+            return await policy.ExecuteAsync(async () =>
+            {
+                var result = await _serviceContract.<#= GetMethodName(interfaceInstance, method, index) #>(<#= string.Join(", ", method.Parameters.Select(x => x.ParameterName)) #>);
+                return result;
+            });
+        }
+<#
+        }
+#>
+        #endregion
+        #region Service
+<#
+        foreach (var method in serviceMethods)
+        {
+            index++;
+            var methodName = GetMethodName(interfaceInstance, method, index);
+            var (responseType, isDynamicMethod) = GetResponseTypeClient(method, className);
+            var (_, _, returnType) = GetReturnType(method, className, true, false);
+
+            foreach (var attrib in method.AttributeDatas.Where(x => x.AttributeClass != null && x.AttributeClass.Name.Contains("FromTypeFilterAttribute")))
+            {
+#>
+        [FromTypeFilter(typeof(GrpcResponseCachingFilter), Arguments = new object[] { 120, false })]
+    <#
+            }
+#>
+        public async <#= $"{returnType} {GetMethodName(interfaceInstance, method, index)}({GetInputParam(method, responseType, nameSpace, false)})" #>
+        {
+            var policy = Polly.Policy
+                .Handle<Exception>()
+                .Or<RpcException>()
+                .WaitAndRetryAsync(_retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                (ex, time) =>
+                {
+                    _logService.Error("Exception on grpc call:" + ex.ToString());
+                });
+
+            return await policy.ExecuteAsync(async () =>
+            {
+                var result = await _serviceContract.<#= GetMethodName(interfaceInstance, method, index) #>(<#= string.Join(", ", method.Parameters.Select(x => x.ParameterName)) #>);
+                return result;
+            });
+        }
+<#
+        }
+#>
+        #endregion
+        #region WrapService
+<#
+        foreach (var method in wrapServiceMethods)
+        {
+            index++;
+            var methodName = GetMethodName(interfaceInstance, method, index);
+            var (responseType, isDynamicMethod) = GetResponseTypeClient(method, className);
+            var (_, _, returnType) = GetReturnType(method, className, true, false);
+            foreach (var attrib in method.AttributeDatas.Where(x => x.AttributeClass != null && x.AttributeClass.Name.Contains("FromTypeFilterAttribute")))
+            {
+#>
+        [FromTypeFilter(typeof(GrpcResponseCachingFilter), Arguments = new object[] { 120, false })]
+    <#
+            }
+#>
+        public async <#= $"{returnType} {GetMethodName(interfaceInstance, method, index)}({GetInputParam(method, responseType, nameSpace, false)})" #>
+        {
+            var policy = Polly.Policy
+                .Handle<Exception>()
+                .Or<RpcException>()
+                .WaitAndRetryAsync(_retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                (ex, time) =>
+                {
+                    _logService.Error("Exception on grpc call:" + ex.ToString());
+                });
+
+            return await policy.ExecuteAsync(async () =>
+            {
+                var result = await _serviceContract.<#= GetMethodName(interfaceInstance, method, index) #>(<#= string.Join(", ", method.Parameters.Select(x => x.ParameterName)) #>);
+                return result;
+            });
+        }
+<#
+        }
+#>
+        #endregion
+    }
+}       
+<#
+        var namespaces = GetListNamespace(this.GenerationEnvironment.ToString(), nameSpace, true);
+        namespaces.Add($"{COMMON_NAMESPACE}.Abstractions.v5");
+        namespaces.ForEach(x => { this.GenerationEnvironment.Insert(0, $"using {x};\n"); });
+        this.GenerationEnvironment.Insert(0,
+            @"// Waring: Do not modify this file
+// Version: 4.0
+// Author: ThuyL, PhucND" + "\n");
+        
+        SaveSdkOutput(Path.Combine($"{sdkFolder}", "Generated", "Grpc", $"Client{className}ServiceSdk.cs"));
+        this.GenerationEnvironment.Clear();
+#>

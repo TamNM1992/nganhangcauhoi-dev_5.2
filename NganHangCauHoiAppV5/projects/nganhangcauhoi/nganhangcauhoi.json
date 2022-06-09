@@ -1,0 +1,13 @@
+
+
+[
+	{
+		"label":"NganHangCauHoi",
+		"isRootMenu":true
+	},
+	{
+		"label":"",
+		"routerLink":"workflowpermission"
+	}
+]
+

@@ -1,0 +1,8 @@
+﻿<#@ assembly name=".\Libs\MagicOnion.GeneratorCore.dll" #>
+<#@ assembly name=".\Libs\Microsoft.CodeAnalysis.dll"#>
+<#@ include file="Common.ttinclude"#>
+<#
+    currentPath = string.Join("\\", Host.TemplateFile.Split('\\').Reverse().Skip(2).Reverse().ToArray());
+    var (modelFolder, partialModelFolder, customModelFolders) = GetModelFolderPaths();
+#>
+<#@ include file="CopyModels.ttinclude"#>

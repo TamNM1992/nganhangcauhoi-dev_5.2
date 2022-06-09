@@ -1,0 +1,31 @@
+﻿<#
+    foreach (var className in dicServiceName.Keys)
+    {
+        // InstanceService vs IInstanceService
+        // var serviceName = className + "Service";
+        var(serviceMethods, wrapServiceMethods, service, wrapService) = GetService_WrapServiceMethods(className, dicService, dicWrapService);
+        var interfaceInstance = service ?? wrapService;
+        var serviceAttribute = GetServiceAttribute(service, wrapService);
+        var nameSpace = GetNameSpace(interfaceInstance);
+        var interfaceClassName = GetClassName(interfaceInstance?.DerivedFromBaseService ?? false, wrapService, service);
+        var index = 0;
+        currentNameSpace = nameSpace;
+        dependencyClass.Add(className);
+        var baseServiceMethods = genAll && interfaceInstance.DerivedFromBaseService ? GetBaseMethods(serviceMethods, wrapServiceMethods) : new List<MethodDefinition>();
+        if (includeServer)
+        {
+#>
+<#@ include file="Service.ttinclude"#>
+<#@ include file="ServiceInterface.ttinclude"#>
+<#
+        }
+        if (includeClient)
+        {
+#>
+<#@ include file="SdkService.ttinclude"#>
+<#@ include file="SdkServiceInterface.ttinclude"#>
+<#@ include file="SdkContractServiceInterface.ttinclude"#>
+<#
+        }
+    }
+#>

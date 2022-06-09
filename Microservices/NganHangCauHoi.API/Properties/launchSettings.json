@@ -1,0 +1,35 @@
+
+
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:16019/",
+      "sslPort": 0
+    }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "PhucND": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "http://localhost:16019",
+      "environmentVariables": {
+        "SPRING__APPLICATION__RAWNAME": "nganhangcauhoi",
+        "EUREKA__INSTANCE__IPADDRESS": "192.168.1.44",
+        "EUREKA__INSTANCE__PORT": "16019",
+        "EUREKA__CLIENT__SERVICEURL": "http://14.225.3.52:16002/eureka/",
+        "SWAGGER__DISABLEPATHBASEFORFILTER": "false",
+        "ASPNETCORE_ENVIRONMENT": "phucnd",
+        "SPRING__APPLICATION__NAME": "nganhangcauhoi.phucnd",
+        "SCOPE__NAME": "U2205",
+        "SCOPE__ENVIRONMENT": "development_local",
+        "SCOPE__SERVICE": "nganhangcauhoi.phucnd",
+        "ETCD__CONFIG": "authenticated=true;server=http://14.225.3.52:2380;username=root;password=giaothong@123",
+        "CORE_VERSION": "5.2"
+      }
+    }
+  }
+}

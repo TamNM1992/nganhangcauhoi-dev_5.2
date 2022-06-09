@@ -1,0 +1,22 @@
+﻿<#@ assembly name="$(ProjectDir)Template\Libs\MagicOnion.GeneratorCore.dll" #>
+<#@ assembly name="$(ProjectDir)Template\Libs\Microsoft.CodeAnalysis.dll"#>
+<#@ include file="Common.ttinclude"#>
+<#
+    SwitchAppContext();
+    var dependencyClass = new List<string>();
+    var currentNameSpace = string.Empty;
+    isV5 = false;
+    var genAll = true;
+    var isApi = true;
+    var includeClient = true;
+    var includeServer = false;
+    string CLIENT_NAMESPACE = isV5 ? "Client.All" : "Shared.All.Clients";
+    string COMMON_NAMESPACE = isV5 ? "Common.Lib" : "Shared.All.Common";
+    string CACHING_NAMESPACE = isV5 ? "Caching.Lib" : "Shared.All.Caching";
+
+    currentPath = string.Join("\\", Host.TemplateFile.Split('\\').Reverse().Skip(2).Reverse().ToArray());
+#>
+<#@ include file="Configuration.ttinclude"#>
+<#@ include file="HubTemplate.ttinclude"#>
+<#@ include file="SdkDependencyInjection.ttinclude"#>
+<#@ include file="CopyModels.ttinclude"#>
