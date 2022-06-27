@@ -12,10 +12,10 @@ namespace NganHangCauHoi.Service.WrapServices
 {
     public partial class WorkflowPermissionWrapService 
 	{
-        public WorkflowPermissionWrapService(
-            IServiceProvider serviceProvider) 
-            : base(serviceProvider)
-        {
-        }       
+        //public WorkflowPermissionWrapService(
+        //    IServiceProvider serviceProvider) 
+        //    : base(serviceProvider)
+        //{
+        //}       
 	}
 }

@@ -12,10 +12,10 @@ namespace NganHangCauHoi.Service.WrapServices
 {
     public partial class NHCH_CloWrapService 
 	{
-        public NHCH_CloWrapService(
-            IServiceProvider serviceProvider) 
-            : base(serviceProvider)
-        {
-        }       
+        //public NHCH_CloWrapService(
+        //    IServiceProvider serviceProvider) 
+        //    : base(serviceProvider)
+        //{
+        //}       
 	}
 }

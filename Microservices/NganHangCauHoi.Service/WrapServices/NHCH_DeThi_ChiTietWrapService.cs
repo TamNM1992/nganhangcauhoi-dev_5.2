@@ -14,7 +14,7 @@ namespace NganHangCauHoi.Service.WrapServices
 	{
         public NHCH_DeThi_ChiTietWrapService(
             IServiceProvider serviceProvider) 
-            : base(serviceProvider)
+           // : base(serviceProvider)
         {
         }       
 	}

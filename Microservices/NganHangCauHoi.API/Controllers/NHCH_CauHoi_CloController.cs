@@ -8,9 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Shared.All.Common.Interfaces;
+//using Shared.All.Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using NganHangCauHoi.Service.Interfaces;
 using NganHangCauHoi.Service.WrapServices.Interfaces;
 
 namespace NganHangCauHoi.API.Controllers
@@ -18,10 +19,13 @@ namespace NganHangCauHoi.API.Controllers
     [ApiController]
     public partial class NHCH_CauHoi_CloController
     {
-        public NHCH_CauHoi_CloController(
-            ILogService logger, 
-            INHCH_CauHoi_CloWrapService service) 
-            : base(logger, service)
+        //public NHCH_CauHoi_CloController(
+        //    ILogService logger, 
+        //    INHCH_CauHoi_CloWrapService service) 
+        //    : base(logger, service)
+        //{
+        //}
+        public NHCH_CauHoi_CloController(ILogger<NHCH_CauHoi_CloController> logger, INHCH_CauHoi_CloService service): base()
         {
         }
     }

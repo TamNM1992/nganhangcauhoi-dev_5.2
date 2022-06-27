@@ -6,8 +6,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NganHangCauHoi.API", "NganH
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NganHangCauHoi.Service", "NganHangCauHoi.Service\NganHangCauHoi.Service.csproj", "{88F142C2-4DA2-454C-AE31-E5F9591931AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NganHangCauHoi.Repo", "NganHangCauHoi.Repo\NganHangCauHoi.Repo.csproj", "{C812AB81-29F9-4A38-8840-B8C6354B153B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,10 +20,6 @@ Global
 		{88F142C2-4DA2-454C-AE31-E5F9591931AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88F142C2-4DA2-454C-AE31-E5F9591931AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88F142C2-4DA2-454C-AE31-E5F9591931AB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C812AB81-29F9-4A38-8840-B8C6354B153B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C812AB81-29F9-4A38-8840-B8C6354B153B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C812AB81-29F9-4A38-8840-B8C6354B153B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C812AB81-29F9-4A38-8840-B8C6354B153B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
